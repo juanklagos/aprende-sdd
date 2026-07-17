@@ -1,0 +1,33 @@
+# ES: Paso 1 — se activa cuando el alumno crea o edita spec/idea/** y, si la
+#     idea es válida, avanza el README al Paso 2.
+# EN: Step 1 — triggers when the learner creates or edits spec/idea/** and,
+#     if the idea is valid, advances the README to Step 2.
+name: "Paso 1: Idea"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "spec/idea/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check_idea:
+    name: Validar la idea / Validate the idea
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.is_template }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comprobar paso y avanzar / Check step and advance
+        run: |
+          STEP="$(tr -d '[:space:]' < .github/steps/-step.txt)"
+          if [ "$STEP" != "1" ]; then
+            echo "ℹ️ Paso actual: $STEP. Este workflow actúa en el paso 1. / Current step: $STEP. This workflow acts at step 1."
+            exit 0
+          fi
+          bash .github/scripts/course-engine.sh run

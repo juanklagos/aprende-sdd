@@ -1,0 +1,35 @@
+# ES: Paso 3 — se activa cuando el alumno crea o edita archivos bajo
+#     spec/specs/** y, si plan.md y tasks.md son consistentes, añade los
+#     archivos de apoyo (research.md, history.md) y avanza al Paso 4.
+# EN: Step 3 — triggers when the learner creates or edits files under
+#     spec/specs/** and, if plan.md and tasks.md are consistent, adds the
+#     support files (research.md, history.md) and advances to Step 4.
+name: "Paso 3: Plan y tareas / Plan & tasks"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "spec/specs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check_plan_tasks:
+    name: Validar plan y tareas / Validate plan & tasks
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.is_template }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comprobar paso y avanzar / Check step and advance
+        run: |
+          STEP="$(tr -d '[:space:]' < .github/steps/-step.txt)"
+          if [ "$STEP" != "3" ]; then
+            echo "ℹ️ Paso actual: $STEP. Este workflow actúa en el paso 3. / Current step: $STEP. This workflow acts at step 3."
+            exit 0
+          fi
+          bash .github/scripts/course-engine.sh run

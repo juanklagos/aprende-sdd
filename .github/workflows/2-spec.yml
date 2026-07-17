@@ -1,0 +1,35 @@
+# ES: Paso 2 — se activa cuando el alumno crea o edita archivos bajo
+#     spec/specs/** y, si la spec está aprobada y es verificable, avanza al
+#     Paso 3.
+# EN: Step 2 — triggers when the learner creates or edits files under
+#     spec/specs/** and, if the spec is approved and verifiable, advances to
+#     Step 3.
+name: "Paso 2: Spec"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "spec/specs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check_spec:
+    name: Validar la spec / Validate the spec
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.is_template }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comprobar paso y avanzar / Check step and advance
+        run: |
+          STEP="$(tr -d '[:space:]' < .github/steps/-step.txt)"
+          if [ "$STEP" != "2" ]; then
+            echo "ℹ️ Paso actual: $STEP. Este workflow actúa en el paso 2. / Current step: $STEP. This workflow acts at step 2."
+            exit 0
+          fi
+          bash .github/scripts/course-engine.sh run

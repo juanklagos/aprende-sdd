@@ -1,0 +1,13 @@
+# Project AI Entry Point
+
+This project keeps its SDD operating system in `./spec/`.
+
+Do not clone or copy the full framework repository into this project unless the user explicitly asks for a standalone workspace.
+
+Read first:
+- `./spec/AGENTS.md`
+- `./spec/AI_START_HERE.md`
+- `./spec/INSTRUCTIONS.md`
+
+Canonical framework reference:
+- https://github.com/juanklagos/spec-driven-development-template

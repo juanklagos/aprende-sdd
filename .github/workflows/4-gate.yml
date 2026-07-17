@@ -1,0 +1,51 @@
+# ES: Paso 4 — cuando el alumno registra su consentimiento en
+#     spec/.sdd/user-consent.log, ejecuta la validación OFICIAL del
+#     SDD Template (estructura + política + compuerta) sobre este repositorio.
+#     Si pasa, marca el curso como completado y muestra el badge.
+# EN: Step 4 — when the learner records consent in spec/.sdd/user-consent.log,
+#     it runs the OFFICIAL SDD Template validation (structure + policy + gate)
+#     on this repository. If it passes, the course is marked as completed and
+#     the badge is shown.
+name: "Paso 4: Compuerta SDD / SDD gate"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "spec/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sdd_gate:
+    name: Validación SDD oficial / Official SDD validation
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.is_template }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comprobar paso / Check step
+        id: check
+        run: |
+          STEP="$(tr -d '[:space:]' < .github/steps/-step.txt)"
+          if [ "$STEP" = "4" ] && [ -s spec/.sdd/user-consent.log ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ Paso actual: $STEP. Este workflow actúa en el paso 4, cuando existe spec/.sdd/user-consent.log. / Current step: $STEP. This workflow acts at step 4, once spec/.sdd/user-consent.log exists."
+          fi
+
+      # ES: La misma action que usarías en un proyecto real con SDD.
+      # EN: The same action you would use in a real SDD project.
+      - name: SDD Validate (action oficial del template / official template action)
+        if: steps.check.outputs.run == 'true'
+        uses: juanklagos/spec-driven-development-template@main
+        with:
+          path: "."
+
+      - name: Completar el curso / Complete the course
+        if: steps.check.outputs.run == 'true'
+        run: bash .github/scripts/course-engine.sh finish

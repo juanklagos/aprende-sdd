@@ -1,0 +1,33 @@
+# ES: Paso 0 — se ejecuta con el primer push de la copia del alumno (creada con
+#     "Use this template") y muestra el Paso 1 en el README.
+# EN: Step 0 — runs on the first push of the learner's copy (created via
+#     "Use this template") and shows Step 1 in the README.
+name: "Paso 0: Bienvenida / Welcome"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  start_course:
+    name: Iniciar el curso / Start the course
+    runs-on: ubuntu-latest
+    # ES: No ejecutar en el repositorio plantilla, solo en las copias.
+    # EN: Do not run on the template repository, only on copies.
+    if: ${{ !github.event.repository.is_template }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comprobar paso y avanzar / Check step and advance
+        run: |
+          STEP="$(tr -d '[:space:]' < .github/steps/-step.txt)"
+          if [ "$STEP" != "0" ]; then
+            echo "ℹ️ El curso ya empezó (paso $STEP); nada que hacer. / Course already started (step $STEP); nothing to do."
+            exit 0
+          fi
+          bash .github/scripts/course-engine.sh run
